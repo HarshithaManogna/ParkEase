@@ -1,0 +1,5 @@
+{
+  "name": "ParkEase",
+  "description": "Smart Parking Rental System",
+  "requestFramePermissions": ["geolocation"]
+}
