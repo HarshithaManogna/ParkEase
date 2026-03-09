@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { MapPin, CheckCircle2, ArrowLeft } from 'lucide-react';
+import { api } from '../services/api';
 
 export default function ParkingDetails() {
   const { id } = useParams();
@@ -18,8 +19,7 @@ export default function ParkingDetails() {
   const [bookingStatus, setBookingStatus] = useState<'idle' | 'submitting' | 'success'>('idle');
 
   useEffect(() => {
-    fetch(`/api/parkings/${id}`)
-      .then(res => res.json())
+    api.getParkingById(id!)
       .then(data => {
         setParking(data);
         setLoading(false);
@@ -37,25 +37,19 @@ export default function ParkingDetails() {
     setBookingStatus('submitting');
 
     try {
-      const res = await fetch('/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          parking_id: parking.id,
-          owner_id: parking.owner_id,
-          date,
-          time_duration: duration,
-          vehicle_type: vehicleType,
-          vehicle_number: vehicleNumber
-        })
+      await api.createBooking({
+        parking_id: parking.id,
+        owner_id: parking.owner_id,
+        date,
+        time_duration: duration,
+        vehicle_type: vehicleType,
+        vehicle_number: vehicleNumber
       });
 
-      if (res.ok) {
-        setBookingStatus('success');
-        const message = `Hello ${parking.owner_name}, I want to book your parking space "${parking.title}" at ${parking.location} on ${date} for ${duration}. Vehicle: ${vehicleType} (${vehicleNumber}).`;
-        const whatsappUrl = `https://wa.me/${parking.owner_phone}?text=${encodeURIComponent(message)}`;
-        window.open(whatsappUrl, '_blank');
-      }
+      setBookingStatus('success');
+      const message = `Hello ${parking.owner_name}, I want to book your parking space "${parking.title}" at ${parking.location} on ${date} for ${duration}. Vehicle: ${vehicleType} (${vehicleNumber}).`;
+      const whatsappUrl = `https://wa.me/${parking.owner_phone}?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
     } catch (error) {
       console.error(error);
       setBookingStatus('idle');

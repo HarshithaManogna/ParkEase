@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Car, Mail, Lock } from 'lucide-react';
+import { api } from '../services/api';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -15,22 +16,11 @@ export default function Login() {
     setError('');
     
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-      
-      const data = await res.json();
-      
-      if (res.ok) {
-        setUser(data.user);
-        navigate('/dashboard');
-      } else {
-        setError(data.error || 'Login failed');
-      }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
+      const data = await api.login(email, password);
+      setUser(data.user);
+      navigate('/dashboard');
+    } catch (err: any) {
+      setError(err.message || 'An error occurred. Please try again.');
     }
   };
 

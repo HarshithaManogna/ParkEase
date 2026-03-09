@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { MapPin, Image as ImageIcon, DollarSign, CheckSquare } from 'lucide-react';
+import { api } from '../services/api';
 
 export default function AddParking() {
   const { user } = useAuth();
@@ -45,23 +46,17 @@ export default function AddParking() {
     setLoading(true);
     
     try {
-      const res = await fetch('/api/parkings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title,
-          location,
-          price_hourly: Number(priceHourly),
-          price_daily: Number(priceDaily),
-          price_monthly: Number(priceMonthly),
-          facilities,
-          images: images.filter(img => img.trim() !== '')
-        })
+      await api.createParking({
+        title,
+        location,
+        price_hourly: Number(priceHourly),
+        price_daily: Number(priceDaily),
+        price_monthly: Number(priceMonthly),
+        facilities,
+        images: images.filter(img => img.trim() !== '')
       });
       
-      if (res.ok) {
-        navigate('/dashboard');
-      }
+      navigate('/dashboard');
     } catch (error) {
       console.error(error);
     } finally {

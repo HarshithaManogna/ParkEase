@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Car, Mail, Lock, User, Phone } from 'lucide-react';
+import { api } from '../services/api';
 
 export default function Signup() {
   const [name, setName] = useState('');
@@ -19,22 +20,11 @@ export default function Signup() {
     setError('');
     
     try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, phone, password, role })
-      });
-      
-      const data = await res.json();
-      
-      if (res.ok) {
-        setUser(data.user);
-        navigate('/dashboard');
-      } else {
-        setError(data.error || 'Registration failed');
-      }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
+      const data = await api.register({ name, email, phone, password, role });
+      setUser(data.user);
+      navigate('/dashboard');
+    } catch (err: any) {
+      setError(err.message || 'An error occurred. Please try again.');
     }
   };
 

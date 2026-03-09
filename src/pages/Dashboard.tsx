@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Car, Calendar, MapPin, Plus, Clock } from 'lucide-react';
+import { api } from '../services/api';
 
 export default function Dashboard() {
   const { user, loading } = useAuth();
@@ -23,22 +24,12 @@ export default function Dashboard() {
 
     const fetchData = async () => {
       try {
-        const bookingsRes = await fetch('/api/my-bookings');
-        if (bookingsRes.ok) {
-          const bookingsData = await bookingsRes.json();
-          setBookings(Array.isArray(bookingsData) ? bookingsData : []);
-        } else {
-          setBookings([]);
-        }
+        const bookingsData = await api.getMyBookings();
+        setBookings(Array.isArray(bookingsData) ? bookingsData : []);
 
         if (user.role === 'owner') {
-          const parkingsRes = await fetch('/api/my-parkings');
-          if (parkingsRes.ok) {
-            const parkingsData = await parkingsRes.json();
-            setParkings(Array.isArray(parkingsData) ? parkingsData : []);
-          } else {
-            setParkings([]);
-          }
+          const parkingsData = await api.getMyParkings();
+          setParkings(Array.isArray(parkingsData) ? parkingsData : []);
         }
       } catch (error) {
         console.error(error);
@@ -52,15 +43,8 @@ export default function Dashboard() {
 
   const handleStatusUpdate = async (id: number, status: string) => {
     try {
-      const res = await fetch(`/api/bookings/${id}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
-      });
-      
-      if (res.ok) {
-        setBookings(bookings.map(b => b.id === id ? { ...b, status } : b));
-      }
+      await api.updateBookingStatus(id, status);
+      setBookings(bookings.map(b => b.id === id ? { ...b, status } : b));
     } catch (error) {
       console.error(error);
     }

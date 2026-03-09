@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Search as SearchIcon, MapPin, SlidersHorizontal } from 'lucide-react';
+import { api } from '../services/api';
 
 export default function Search() {
   const [searchParams] = useSearchParams();
@@ -12,8 +13,7 @@ export default function Search() {
   const [location, setLocation] = useState(initialLocation);
 
   useEffect(() => {
-    fetch('/api/parkings')
-      .then(res => res.json())
+    api.getParkings()
       .then(data => {
         let filtered = data;
         if (initialLocation) {

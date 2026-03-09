@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Search, MapPin, ArrowRight } from 'lucide-react';
+import { api } from '../services/api';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -9,8 +10,7 @@ export default function Home() {
   const [featured, setFeatured] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('/api/parkings')
-      .then(res => res.json())
+    api.getParkings()
       .then(data => setFeatured(data.slice(0, 3)))
       .catch(console.error);
   }, []);

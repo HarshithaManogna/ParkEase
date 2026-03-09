@@ -1,13 +1,14 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LogOut, User as UserIcon } from 'lucide-react';
+import { api } from '../services/api';
 
 export default function Navbar() {
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
+    await api.logout();
     setUser(null);
     navigate('/');
   };
